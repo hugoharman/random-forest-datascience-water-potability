@@ -1,5 +1,5 @@
-import pandas as pd
 import numpy as np
+import pandas as pd
 import seaborn as sns
 import matplotlib.pyplot as plt
 from sklearn.model_selection import train_test_split
@@ -28,15 +28,6 @@ print(df.isnull().sum())
 # Menangani nilai yang hilang dengan imputasi rata-rata
 df = df.fillna(df.mean())
 
-# Membuat plot distribusi target
-plt.figure(figsize=(10, 5))
-df['Potability'].value_counts().plot(kind='bar')
-plt.title('Distribution of Water Potability')  # Judul dalam Bahasa Inggris
-plt.xlabel('Potability')
-plt.ylabel('Count')
-plt.savefig('distribution.png')
-plt.close()
-
 # 4. Menentukan Fitur dan Target
 X = df.drop('Potability', axis=1)
 y = df['Potability']
@@ -46,10 +37,34 @@ print("Fitur:", X.columns.tolist())
 print("Target: Potability")
 
 # 5. Pembersihan Data dan Visualisasi
+# Deteksi outlier dengan IQR
+def remove_outliers(df, columns):
+    df_clean = df.copy()
+    for column in columns:
+        Q1 = df_clean[column].quantile(0.25)
+        Q3 = df_clean[column].quantile(0.75)
+        IQR = Q3 - Q1
+        lower_bound = Q1 - 1.5 * IQR
+        upper_bound = Q3 + 1.5 * IQR
+        df_clean = df_clean[(df_clean[column] >= lower_bound) & (df_clean[column] <= upper_bound)]
+    return df_clean
+
+# Menghapus outlier
+df_cleaned = remove_outliers(df, X.columns)
+
+# Memeriksa skewness dan melakukan transformasi log jika diperlukan
+for column in X.columns:
+    if abs(df_cleaned[column].skew()) > 1:
+        df_cleaned[column] = np.log1p(df_cleaned[column] - df_cleaned[column].min() + 1)
+
+# Update X dan y setelah cleaning
+X = df_cleaned.drop('Potability', axis=1)
+y = df_cleaned['Potability']
+
 # Heatmap Korelasi
 plt.figure(figsize=(12, 10))
-sns.heatmap(df.corr(), annot=True, cmap='coolwarm', center=0, fmt='.2f')
-plt.title('Correlation Heatmap')  # Judul dalam Bahasa Inggris
+sns.heatmap(df_cleaned.corr(), annot=True, cmap='coolwarm', center=0, fmt='.2f')
+plt.title('Correlation Heatmap')
 plt.savefig('correlation_heatmap.png')
 plt.close()
 
@@ -58,14 +73,15 @@ plt.figure(figsize=(15, 10))
 for i, col in enumerate(X.columns, 1):
     plt.subplot(3, 3, i)
     plt.hist(X[col], bins=30)
-    plt.title(col)  
+    plt.title(col)
 plt.tight_layout()
 plt.savefig('feature_distributions.png')
 plt.close()
 
 # 6. Konstruksi Data
 print("\n# 6. Tipe Data:")
-print(df.dtypes)
+print(df_cleaned.dtypes)
+
 # 7. Pemodelan
 smote = SMOTE(random_state=42)
 X_resampled, y_resampled = smote.fit_resample(X, y)
