@@ -1,7 +1,6 @@
 import streamlit as st
 import pandas as pd
 import numpy as np
-import seaborn as sns
 import matplotlib.pyplot as plt
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
@@ -10,6 +9,7 @@ from sklearn.metrics import confusion_matrix, classification_report
 from imblearn.over_sampling import SMOTE
 import joblib  
 import os
+from PIL import Image
 
 MODEL_PATH = 'random_forest_model.pkl'
 SCALER_PATH = 'standard_scaler.pkl'
@@ -18,21 +18,9 @@ def load_data():
     df = pd.read_csv('water_potability.csv')
     return df.fillna(df.mean())
 
-def plot_correlation(df):
-    fig, ax = plt.subplots(figsize=(10, 8))
-    sns.heatmap(df.corr(), annot=True, cmap='coolwarm', center=0, fmt='.2f')
-    plt.title('Matriks Korelasi')
-    return fig
-
-def plot_feature_distributions(df):
-    features = df.drop('Potability', axis=1).columns
-    fig = plt.figure(figsize=(15, 10))
-    for i, col in enumerate(features, 1):
-        plt.subplot(3, 3, i)
-        plt.hist(df[col], bins=30)
-        plt.title(f'Distribusi {col}')
-    plt.tight_layout()
-    return fig
+def load_image(image_path):
+    """Load an image from the specified path."""
+    return Image.open(image_path)
 
 def load_model_and_scaler():
     """Load the model and scaler from disk if they exist."""
@@ -57,12 +45,12 @@ def main():
     st.header('Visualisasi Data')
     
     st.subheader('Matriks Korelasi')
-    corr_fig = plot_correlation(df)
-    st.pyplot(corr_fig)
+    corr_image = load_image('correlation_heatmap.png')
+    st.image(corr_image, caption='Matriks Korelasi')
     
     st.subheader('Distribusi Fitur')
-    dist_fig = plot_feature_distributions(df)
-    st.pyplot(dist_fig)
+    dist_image = load_image('feature_distributions.png')
+    st.image(dist_image, caption='Distribusi Fitur')
     
     model, scaler = load_model_and_scaler()
     
@@ -90,11 +78,8 @@ def main():
         
         # Confusion matrix
         st.subheader('Matriks Konfusi')
-        cm_fig, ax = plt.subplots()
-        sns.heatmap(confusion_matrix(y, y_pred), annot=True, fmt='d')
-        plt.xlabel('Prediksi')
-        plt.ylabel('Aktual')
-        st.pyplot(cm_fig)
+        cm_image = load_image('confusion_matrix.png')
+        st.image(cm_image, caption='Matriks Konfusi')
     else:
         st.error('Model belum dilatih')
     

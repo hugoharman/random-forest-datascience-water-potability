@@ -87,6 +87,22 @@ y_pred = model.predict(X_test_scaled)
 accuracy = accuracy_score(y_test, y_pred)
 conf_matrix = confusion_matrix(y_test, y_pred)
 
+plt.figure(figsize=(8, 6))
+plt.imshow(conf_matrix, cmap='Blues', interpolation='nearest')
+plt.colorbar()
+plt.title('Confusion Matrix')
+plt.xlabel('Predicted')
+plt.ylabel('Actual')
+plt.xticks([0, 1], ['Not Potable', 'Potable'])
+plt.yticks([0, 1], ['Not Potable', 'Potable'])
+for i in range(2):
+    for j in range(2):
+        plt.text(j, i, conf_matrix[i, j], ha='center', va='center', color='red')
+plt.savefig('confusion_matrix.png')
+plt.close()
+
+
+
 print("\nRandom Forest:")
 print(f"Akurasi: {accuracy:.4f}")
 print("Matriks Konfusi:")
