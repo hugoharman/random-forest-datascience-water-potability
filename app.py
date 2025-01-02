@@ -44,7 +44,7 @@ def load_model_and_scaler():
         return None, None
 
 def main():
-    st.title('Analisis Kelayakan Air Minum')
+    st.title('Analisis Kelayakan Air Minum - A11.2021.13937')
     
     # Load data
     df = load_data()
