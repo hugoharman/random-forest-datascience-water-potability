@@ -52,10 +52,6 @@ def remove_outliers(df, columns):
 # Menghapus outlier
 df_cleaned = remove_outliers(df, X.columns)
 
-# Memeriksa skewness dan melakukan transformasi log jika diperlukan
-for column in X.columns:
-    if abs(df_cleaned[column].skew()) > 1:
-        df_cleaned[column] = np.log1p(df_cleaned[column] - df_cleaned[column].min() + 1)
 
 # Update X dan y setelah cleaning
 X = df_cleaned.drop('Potability', axis=1)

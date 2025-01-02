@@ -50,12 +50,6 @@ for column in df_cleaned.columns:
 # Handle outliers
 df_cleaned = handle_outliers(df_cleaned, df_cleaned.drop('Potability', axis=1).columns)
 
-# Handle skewness
-for column in df_cleaned.columns:
-    if column != 'Potability':
-        skewness = df_cleaned[column].skew()
-        if abs(skewness) > 1:
-            df_cleaned[column] = np.log1p(df_cleaned[column] - df_cleaned[column].min() + 1)
 
 # Target distribution plot
 plt.figure(figsize=(10, 5))
